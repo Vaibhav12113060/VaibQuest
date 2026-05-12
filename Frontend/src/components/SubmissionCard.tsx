@@ -60,7 +60,11 @@ const SubmissionCard = ({ submission, onApprove, onReject }: any) => {
         {submission.proofLink && (
           <div className="mb-3">
             <a
-              href={submission.proofLink}
+              href={
+                submission.proofLink.startsWith("http")
+                  ? submission.proofLink
+                  : `https://${submission.proofLink}`
+              }
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 hover:underline font-medium text-sm flex items-center gap-1"

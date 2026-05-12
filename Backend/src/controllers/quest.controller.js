@@ -103,17 +103,32 @@ GET ALL QUESTS
 
 const getAllQuests = async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 6;
+    const skip = (page - 1) * limit;
+
+    const query = { isActive: true };
+    const totalQuests = await Quest.countDocuments(query);
+    const totalPages = Math.ceil(totalQuests / limit);
+
     const quests = await Quest.find({
       isActive: true,
     })
       .populate("createdBy", "username email")
       .sort({
         createdAt: -1,
-      });
+      })
+      .skip(skip)
+      .limit(limit);
 
     return res.status(200).json({
       success: true,
       quests,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalQuests,
+      },
     });
   } catch (error) {
     return res.status(500).json({

@@ -4,6 +4,38 @@ const UserQuest = require("../models/userQuest.model");
 
 /*
 =====================================
+BADGE RULES
+=====================================
+*/
+
+const BADGE_RULES = [
+  { xp: 500, badge: "bronze" },
+  { xp: 1500, badge: "silver" },
+  { xp: 3000, badge: "gold" },
+  { xp: 5000, badge: "platinum" },
+  { xp: 10000, badge: "diamond" },
+];
+
+/*
+=====================================
+HELPER FUNCTION
+=====================================
+*/
+
+const calculateBadges = (xp) => {
+  const badges = [];
+
+  for (const rule of BADGE_RULES) {
+    if (xp >= rule.xp) {
+      badges.push(rule.badge);
+    }
+  }
+
+  return badges;
+};
+
+/*
+=====================================
 USER CONTROLLERS
 =====================================
 */
@@ -31,6 +63,7 @@ const joinQuest = async (req, res) => {
     const joinedQuest = await UserQuest.create({
       userId: req.user.id,
       questId,
+      status: "started",
     });
 
     return res.status(201).json({
@@ -105,6 +138,13 @@ const submitQuest = async (req, res) => {
 
     const quest = await Quest.findById(userQuest.questId);
 
+    if (!quest) {
+      return res.status(404).json({
+        success: false,
+        message: "Quest not found",
+      });
+    }
+
     if (new Date() > quest.deadline) {
       return res.status(400).json({
         success: false,
@@ -147,17 +187,30 @@ MY JOINED QUESTS
 
 const getMyJoinedQuests = async (req, res) => {
   try {
-    const quests = await UserQuest.find({
-      userId: req.user.id,
-    })
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 4;
+    const skip = (page - 1) * limit;
+
+    const query = { userId: req.user.id };
+    const totalQuests = await UserQuest.countDocuments(query);
+    const totalPages = Math.ceil(totalQuests / limit);
+
+    const quests = await UserQuest.find(query)
       .populate("questId")
       .sort({
         createdAt: -1,
-      });
+      })
+      .skip(skip)
+      .limit(limit);
 
     return res.status(200).json({
       success: true,
       quests,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalQuests,
+      },
     });
   } catch (error) {
     return res.status(500).json({
@@ -173,18 +226,30 @@ LEADERBOARD
 
 const getLeaderboard = async (req, res) => {
   try {
-    const users = await User.find({
-      role: "user",
-    })
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const skip = (page - 1) * limit;
+
+    const query = { role: "user" };
+    const totalUsers = await User.countDocuments(query);
+    const totalPages = Math.ceil(totalUsers / limit);
+
+    const users = await User.find(query)
       .select("username totalXP badges avatar")
       .sort({
         totalXP: -1,
       })
-      .limit(10);
+      .skip(skip)
+      .limit(limit);
 
     return res.status(200).json({
       success: true,
       users,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalUsers,
+      },
     });
   } catch (error) {
     return res.status(500).json({
@@ -206,18 +271,31 @@ GET QUEST SUBMISSIONS
 
 const getQuestSubmissions = async (req, res) => {
   try {
-    const submissions = await UserQuest.find({
-      questId: req.params.questId,
-    })
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 4;
+    const skip = (page - 1) * limit;
+
+    const query = { questId: req.params.questId };
+    const totalSubmissions = await UserQuest.countDocuments(query);
+    const totalPages = Math.ceil(totalSubmissions / limit);
+
+    const submissions = await UserQuest.find(query)
       .populate("userId", "username email avatar")
       .populate("questId", "title")
       .sort({
         createdAt: -1,
-      });
+      })
+      .skip(skip)
+      .limit(limit);
 
     return res.status(200).json({
       success: true,
       submissions,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalSubmissions,
+      },
     });
   } catch (error) {
     return res.status(500).json({
@@ -243,27 +321,34 @@ const approveSubmission = async (req, res) => {
     }
 
     /*
-      Prevent Multiple Approvals
-      */
+    Prevent Re-approving
+    */
 
     if (userQuest.status === "approved") {
       return res.status(400).json({
         success: false,
-        message: "Submission already approved",
+        message: "Submission is already approved",
       });
     }
 
     /*
-      Find Quest & User
-      */
+    Find Quest & User
+    */
 
     const quest = await Quest.findById(userQuest.questId);
 
     const user = await User.findById(userQuest.userId);
 
+    if (!quest || !user) {
+      return res.status(404).json({
+        success: false,
+        message: "Associated Quest or User not found",
+      });
+    }
+
     /*
-      Update Submission
-      */
+    Update Submission
+    */
 
     userQuest.status = "approved";
 
@@ -272,47 +357,22 @@ const approveSubmission = async (req, res) => {
     userQuest.reviewedAt = new Date();
 
     /*
-      Add XP
-      */
+    Add XP
+    */
 
     user.totalXP += quest.rewardXP;
 
     /*
-      Badge Rules
-      */
+    Recalculate Badges
+    */
 
-    const BADGE_RULES = [
-      {
-        xp: 100,
-        badge: "bronze",
-      },
-      {
-        xp: 500,
-        badge: "silver",
-      },
-      {
-        xp: 1000,
-        badge: "gold",
-      },
-      {
-        xp: 2000,
-        badge: "platinum",
-      },
-      {
-        xp: 5000,
-        badge: "diamond",
-      },
-    ];
+    user.badges = calculateBadges(user.totalXP);
+
+    user.markModified("badges");
 
     /*
-      Assign Badges
-      */
-
-    for (const rule of BADGE_RULES) {
-      if (user.totalXP >= rule.xp && !user.badges.includes(rule.badge)) {
-        user.badges.push(rule.badge);
-      }
-    }
+    Save Changes
+    */
 
     await user.save();
 
@@ -348,19 +408,57 @@ const rejectSubmission = async (req, res) => {
     }
 
     /*
-      Prevent Multiple Rejections
-      */
+    Prevent Re-rejecting
+    */
 
     if (userQuest.status === "rejected") {
       return res.status(400).json({
         success: false,
-        message: "Submission already rejected",
+        message: "Submission is already rejected",
       });
     }
 
     /*
-      Update Submission
+    If previously approved,
+    remove XP and recalculate badges
+    */
+
+    if (userQuest.status === "approved") {
+      const quest = await Quest.findById(userQuest.questId);
+
+      const user = await User.findById(userQuest.userId);
+
+      if (!quest || !user) {
+        return res.status(404).json({
+          success: false,
+          message: "Associated Quest or User not found",
+        });
+      }
+
+      /*
+      Deduct XP
       */
+
+      user.totalXP = Math.max(0, (user.totalXP || 0) - (quest.rewardXP || 0));
+
+      /*
+      Recalculate Badges
+      */
+
+      user.badges = calculateBadges(user.totalXP);
+
+      user.markModified("badges");
+
+      /*
+      Save User
+      */
+
+      await user.save();
+    }
+
+    /*
+    Update Submission
+    */
 
     userQuest.status = "rejected";
 

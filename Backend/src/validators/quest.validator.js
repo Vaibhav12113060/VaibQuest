@@ -8,7 +8,8 @@ const createQuestValidator = [
   body("description").trim().notEmpty().withMessage("Description is required"),
   body("rewardXP")
     .isInt({ min: 0 })
-    .withMessage("Reward XP must be a non-negative integer"),
+    .withMessage("Reward XP must be a non-negative integer")
+    .toInt(),
   body("deadline").isISO8601().toDate().withMessage("Invalid deadline format"),
   body("difficulty")
     .isIn(QUEST_DIFFICULTY)
@@ -33,7 +34,8 @@ const updateQuestValidator = [
   body("rewardXP")
     .optional()
     .isInt({ min: 0 })
-    .withMessage("Reward XP must be a non-negative integer"),
+    .withMessage("Reward XP must be a non-negative integer")
+    .toInt(),
   body("deadline")
     .optional()
     .isISO8601()

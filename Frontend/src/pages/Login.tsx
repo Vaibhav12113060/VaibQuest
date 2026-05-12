@@ -24,6 +24,8 @@ const Login = () => {
     email: "",
     password: "",
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const [loading, setLoading] = useState(false);
 
@@ -43,12 +45,35 @@ const Login = () => {
   HANDLE CHANGE
   =====================================
   */
+  const validateField = (name: string, value: string) => {
+    switch (name) {
+      case "email":
+        if (value.trim() === "") return "Email address is required.";
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+          ? ""
+          : "Please enter a valid email address.";
+      case "password":
+        return value.trim() === "" ? "Password is required." : "";
+      default:
+        return "";
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
+    if (touched[name]) {
+      setErrors({ ...errors, [name]: validateField(name, value) });
+    }
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setTouched({ ...touched, [name]: true });
+    setErrors({ ...errors, [name]: validateField(name, value) });
   };
 
   /*
@@ -59,6 +84,21 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const validationErrors: Record<string, string> = {};
+    let hasErrors = false;
+    Object.keys(formData).forEach((key) => {
+      const error = validateField(key, formData[key as keyof typeof formData]);
+      validationErrors[key] = error;
+      if (error) hasErrors = true;
+    });
+    setErrors(validationErrors);
+    setTouched({ email: true, password: true });
+
+    if (hasErrors) {
+      toast.error("Please fix the validation errors before submitting.");
+      return;
+    }
 
     try {
       setLoading(true);
@@ -73,13 +113,13 @@ const Login = () => {
 
       navigate("/dashboard");
     } catch (error: any) {
-      let errorMessage = "Something went wrong";
+      let errorMessage = "An unexpected error occurred. Please try again.";
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
       } else if (error.response?.data?.errors) {
         errorMessage = error.response.data.errors
-          .map((err: any) => err.msg)
-          .join(", ");
+          .map((err: any) => Object.values(err)[0])
+          .join(" • ");
       }
       toast.error(errorMessage);
     } finally {
@@ -90,9 +130,14 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg">
-        <h1 className="text-3xl font-bold text-center mb-6">
-          Login to VaibQuest
-        </h1>
+        <div className="flex flex-col items-center mb-6">
+          <img
+            src="/Logo.png"
+            alt="VaibQuest Logo"
+            className="w-16 h-16 mb-2 object-contain"
+          />
+          <h1 className="text-3xl font-bold text-center">Login to VaibQuest</h1>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -104,8 +149,12 @@ const Login = () => {
               placeholder="Enter email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full border rounded-lg px-4 py-2 outline-none"
+              onBlur={handleBlur}
+              className={`w-full border rounded-lg px-4 py-2 outline-none transition ${errors.email && touched.email ? "border-red-500 ring-1 ring-red-500" : "focus:ring-2 focus:ring-black"}`}
             />
+            {errors.email && touched.email && (
+              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+            )}
           </div>
 
           <div>
@@ -117,8 +166,12 @@ const Login = () => {
               placeholder="Enter password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full border rounded-lg px-4 py-2 outline-none"
+              onBlur={handleBlur}
+              className={`w-full border rounded-lg px-4 py-2 outline-none transition ${errors.password && touched.password ? "border-red-500 ring-1 ring-red-500" : "focus:ring-2 focus:ring-black"}`}
             />
+            {errors.password && touched.password && (
+              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+            )}
           </div>
 
           <button

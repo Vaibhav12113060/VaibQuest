@@ -16,6 +16,8 @@ const Dashboard = () => {
   });
   const [loading, setLoading] = useState(true);
 
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+
   useEffect(() => {
     fetchQuests(1);
   }, []);
@@ -24,14 +26,16 @@ const Dashboard = () => {
     try {
       setLoading(true);
       const [questsRes, joinedRes] = await Promise.all([
-        getAllQuests(page, 6),
+        getAllQuests(page, 3),
         getMyJoinedQuests(1, 1000), // Map all joined statuses regardless of pagination
       ]);
 
       setQuests(questsRes.quests || []);
       setPagination(questsRes.pagination || { currentPage: 1, totalPages: 1 });
       const joinedIds =
-        joinedRes.quests?.map((q: any) => q.questId._id || q.questId) || [];
+        joinedRes.quests
+          ?.map((q: any) => q.questId?._id || q.questId)
+          .filter(Boolean) || [];
       setJoinedQuestIds(joinedIds);
     } catch (error) {
       console.log(error);
@@ -51,6 +55,23 @@ const Dashboard = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-4">
+      {/* Welcome Banner */}
+      <div className="mb-10 bg-gradient-to-r from-gray-900 to-gray-800 rounded-3xl p-8 sm:p-10 text-white shadow-xl">
+        <h1 className="text-4xl sm:text-5xl font-extrabold mb-3 tracking-tight">
+          Welcome back,{" "}
+          <span className="text-blue-400">
+            {user?.username ||
+              (user?.role === "admin" ? "Admin" : "Quest Hunter")}
+          </span>
+          ! {user?.role === "admin" ? "👑" : "👋"}
+        </h1>
+        <p className="text-gray-300 text-lg sm:text-xl max-w-2xl">
+          {user?.role === "admin"
+            ? "Ready to oversee the realm? Monitor active quests, review recent submissions, and manage the quest hunters."
+            : "Ready to take on new challenges and earn more XP? Explore the available quests below and start your journey."}
+        </p>
+      </div>
+
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Available Quests</h1>
         <p className="text-gray-500 mt-2 text-lg">

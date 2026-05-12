@@ -123,14 +123,19 @@ const UserProfile = () => {
                   Badges:
                 </span>
 
-                {user.badges.map((badge: string, i: number) => (
-                  <span
-                    key={i}
-                    className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-3 py-1 rounded-full text-xs font-bold uppercase shadow-sm"
-                  >
-                    {badge}
-                  </span>
-                ))}
+                {user.badges.map((badge: string, i: number) => {
+                  const badgeName =
+                    badge.charAt(0).toUpperCase() + badge.slice(1);
+                  return (
+                    <img
+                      key={i}
+                      src={`/${badgeName}.png`}
+                      alt={badgeName}
+                      title={badgeName}
+                      className="w-10 h-10 object-contain drop-shadow-sm hover:scale-110 transition-transform cursor-help"
+                    />
+                  );
+                })}
               </div>
             )}
           </div>
@@ -152,7 +157,7 @@ const UserProfile = () => {
           <img
             src={avatarUrl}
             alt="Large Profile"
-            className="w-[420px] h-[420px] rounded-2xl shadow-2xl object-cover bg-white"
+            className="w-full max-w-[420px] aspect-square rounded-2xl shadow-2xl object-cover bg-white"
           />
         </div>
       )}

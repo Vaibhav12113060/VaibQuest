@@ -91,11 +91,13 @@ const AdminDashboard = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead className="border-b-2">
-              <tr className="bg-gray-50">
-                <th className="p-3 font-semibold">Title</th>
-                <th className="p-3 font-semibold">XP</th>
-                <th className="p-3 font-semibold">Difficulty</th>
-                <th className="p-3 font-semibold text-center">Actions</th>
+              <tr className="bg-gray-50 whitespace-nowrap">
+                <th className="p-3 font-semibold min-w-[200px]">Title</th>
+                <th className="p-3 font-semibold min-w-[80px]">XP</th>
+                <th className="p-3 font-semibold min-w-[100px]">Difficulty</th>
+                <th className="p-3 font-semibold text-center min-w-[200px]">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>

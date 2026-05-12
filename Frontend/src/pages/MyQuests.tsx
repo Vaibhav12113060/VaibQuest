@@ -63,7 +63,7 @@ const MyQuests = () => {
               >
                 <div className="mb-4">
                   <h2 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
-                    {userQuest.questId.title}
+                    {userQuest.questId?.title || "Deleted Quest"}
                   </h2>
                   <div className="flex items-center gap-2 mb-3">
                     <span
@@ -80,12 +80,16 @@ const MyQuests = () => {
                       {userQuest.status || "started"}
                     </span>
                     <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-bold">
-                      XP: {userQuest.questId.rewardXP}
+                      XP: {userQuest.questId?.rewardXP || 0}
                     </span>
                   </div>
                   <p className="text-sm text-gray-500 font-medium">
                     ⏳ Deadline:{" "}
-                    {new Date(userQuest.questId.deadline).toLocaleDateString()}
+                    {userQuest.questId?.deadline
+                      ? new Date(
+                          userQuest.questId.deadline,
+                        ).toLocaleDateString()
+                      : "N/A"}
                   </p>
                   {userQuest.status === "rejected" && (
                     <p className="text-sm text-red-600 mt-2 font-medium bg-red-50 p-2 rounded-lg border border-red-100">
@@ -94,10 +98,14 @@ const MyQuests = () => {
                   )}
                 </div>
                 <div className="mt-2 pt-4 border-t flex justify-end">
-                  {new Date(userQuest.questId.deadline) < new Date() &&
-                  ["started", "joined", "pending"].includes(
-                    userQuest.status,
-                  ) ? (
+                  {!userQuest.questId ? (
+                    <span className="text-red-500 font-medium text-sm italic py-2 w-full text-center">
+                      Quest no longer available
+                    </span>
+                  ) : new Date(userQuest.questId.deadline) < new Date() &&
+                    ["started", "joined", "pending"].includes(
+                      userQuest.status,
+                    ) ? (
                     <span className="bg-red-50 text-red-600 px-4 py-2 rounded-lg font-semibold text-sm border border-red-100 w-full text-center">
                       Expired
                     </span>

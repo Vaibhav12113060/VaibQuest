@@ -153,13 +153,13 @@ The project follows strict testing practices with Unit, Integration, API, and Co
 **Backend Test Coverage**
 
 - Highlights: Core authentication flows tested, Quest management APIs covered, Validation and middleware logic tested, Route coverage fully implemented.
-- Overall Lines Covered: ~75%
+- Overall Lines Covered: ~89%
 
 ![Backend Test Coverage](../public/BackendTestCoverageReport.png)
 
 **Frontend Test Coverage**
 
 - Highlights: UI rendering tests implemented, Form validation scenarios tested, Page interaction and component behavior covered, Core user flows validated.
-- Overall Lines Covered: ~60%
+- Overall Lines Covered: ~73%
 
 ![Frontend Test Coverage](../public/FrontendTestCoverageReport.png)

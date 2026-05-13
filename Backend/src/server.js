@@ -5,6 +5,8 @@ const colors = require("colors");
 const morgan = require("morgan");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("../docs/swagger.json");
 
 dotenv.config();
 
@@ -26,7 +28,9 @@ DATABASE CONNECTION
 =====================================
 */
 
-connectDB();
+if (process.env.NODE_ENV !== "test") {
+  connectDB();
+}
 
 const app = express();
 
@@ -82,6 +86,13 @@ app.use("/api/user-quests", userQuestRoutes);
 
 /*
 =====================================
+SWAGGER API DOCS
+=====================================
+*/
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+/*
+=====================================
 ROOT ROUTE
 =====================================
 */
@@ -98,6 +109,10 @@ SERVER
 
 const PORT = process.env.PORT || 8000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on PORT: ${PORT}`.bgCyan.white);
-});
+if (process.env.NODE_ENV !== "test") {
+  app.listen(PORT, () => {
+    console.log(`Server running on PORT: ${PORT}`.bgCyan.white);
+  });
+}
+
+module.exports = app;

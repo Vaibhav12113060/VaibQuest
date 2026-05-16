@@ -15,6 +15,13 @@ This platform empowers users to embark on quests, submit proof of their achievem
 
 > **Evaluation Notice:** This project strictly adheres to **SOLID principles**, **Clean Code Architecture**, and industry-standard **Security Best Practices**. Comprehensive test coverage guarantees maximum reliability and stability across the entire codebase.
 
+## 🌍 Live Demo & Deployment
+
+🚀 **Experience the platform live here:**
+
+- 🖥️ **Frontend:** [![Netlify](https://img.shields.io/badge/Netlify-00C7B7?style=for-the-badge&logo=netlify&logoColor=white)](https://vaibquest.netlify.app) 👉 [https://vaibquest.netlify.app](https://vaibquest.netlify.app)
+- ⚙️ **Backend:** [![Render](https://img.shields.io/badge/Render-%2346E3B7.svg?style=for-the-badge&logo=render&logoColor=white)](https://vaibquest.onrender.com) 👉 [https://vaibquest.onrender.com](https://vaibquest.onrender.com)
+
 ## 🚀 Tech Stack
 
 - **Frontend:** React.js 19, TypeScript, Vite, Tailwind CSS, React Router v7

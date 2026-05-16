@@ -557,6 +557,7 @@ const Profile = () => {
                 onChange={handleAvatarChange}
                 className="hidden"
                 accept="image/*"
+                disabled={avatarLoading}
               />
             </div>
 

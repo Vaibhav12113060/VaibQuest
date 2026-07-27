@@ -3,6 +3,9 @@
 ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
 ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?&style=for-the-badge&logo=redis&logoColor=white)
+![LangChain](https://img.shields.io/badge/LangChain-1f910c?style=for-the-badge&logo=langchain&logoColor=white)
 ![Express.js](https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=white)
 ![MongoDB](https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white)
 ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
@@ -27,18 +30,25 @@ This platform empowers users to embark on quests, submit proof of their achievem
 - **Frontend:** React.js 19, TypeScript, Vite, Tailwind CSS, React Router v7
 - **Backend:** Node.js, Express.js, Cloudinary (File Management)
 - **Database:** MongoDB, Mongoose ODM
+- **Caching & Performance:** Redis for in-memory caching and API rate limiting
+- **AI & Machine Learning:** LangChain.js with OpenAI/Gemini APIs for RAG-based assistance
 - **Security:** JSON Web Tokens (JWT), Bcrypt.js, Express Validator
 - **Testing Ecosystem:** Jest, Supertest, Vitest, React Testing Library, MongoDB Memory Server
+- **Containerization:** Docker, Docker Compose
 
 ---
 
 ## ✨ Core Capabilities
 
 - **Authentication & Authorization:** Secure JWT-based login mechanisms with strict Role-Based Access Control (Admin/User).
+- **AI-Powered Quest Assistant:** An intelligent, RAG-based assistant built with LangChain that analyzes user profiles to provide personalized quest recommendations and explanations.
 - **Gamification Engine:** Automated XP distribution, tier-based badge unlocks (Bronze to Diamond), and global leaderboard ranking.
 - **Quest Management (CRUD):** Admins can orchestrate quests, establish deadlines, and manage completion criteria.
 - **Proof Submissions:** Seamless integration for users to upload proof links or files via Cloudinary CDN.
 - **Evaluation Workflow:** Dedicated portal for admins to approve/reject submissions with interactive feedback, triggering automated XP ledger updates.
+- **High-Performance Caching:** Leverages Redis to dramatically reduce response times for frequently accessed data, ensuring a snappy user experience.
+- **Robust API Security:** Implements Redis-backed rate limiting to protect against DDoS attacks and ensure application stability.
+- **Containerized Deployment:** Fully dockerized stack (Frontend, Backend, Redis) for consistent, isolated, and scalable deployments using Docker Compose.
 
 ---
 
@@ -79,23 +89,34 @@ Experience the intuitive and gamified user interface of VaibQuest. Below are gli
 
 ```text
 VaibQuest/
-├── Backend/                 # Express.js REST API Server
-│   ├── src/                 # Source code (Controllers, Models, Routes)
-│   ├── tests/               # Unit and API Tests (Jest & Supertest)
-│   └── docs/                # Documentation & Swagger
-│       ├── swagger.json     # Swagger API Documentation
-│       └── README.md        # Backend specific documentation
-├── Frontend/                # React.js Client Application
-│   ├── src/                 # Source code (Components, Pages, Services)
-│   ├── tests/               # Component & Integration Tests (Vitest)
-│   ├── public/              # Static assets & images
-│   └── docs/                # Frontend Documentation
-│       └── README.md        # Frontend specific documentation
-├── Docs/                    # Master Documentation (You are here)
-│   └── README.md            # Main Project Documentation
-└── public/                  # Core documentation assets & imagery
-    ├── UI/                  # User Interface Screenshots
-    └── ...
+├── Backend/                     # Express.js REST API Server
+│   ├── src/
+│   │   ├── config/              # DB connection, Cloudinary, AI models
+│   │   ├── controllers/         # Request handlers & business logic
+│   │   ├── middlewares/         # Auth, caching, rate limiting, validation
+│   │   ├── models/              # Mongoose schemas
+│   │   ├── routes/              # API route definitions
+│   │   ├── services/            # AI service logic
+│   │   └── validators/          # express-validator schemas
+│   ├── tests/                   # Unit & API tests (Jest, Supertest)
+│   ├── docs/                    # Backend-specific documentation
+│   └── Dockerfile               # Docker configuration for the backend
+├── Frontend/                    # React.js Client Application
+│   ├── src/
+│   │   ├── api/                 # Axios instance & interceptors
+│   │   ├── components/          # Reusable UI components
+│   │   ├── layouts/             # Main & Admin layouts
+│   │   ├── pages/               # Page-level components
+│   │   ├── routes/              # Routing logic
+│   │   └── services/            # API service functions
+│   ├── public/                  # Static assets
+│   ├── tests/                   # Component tests (Vitest)
+│   └── Dockerfile               # Docker configuration for the frontend
+├── Docs/                        # Master Project Documentation (You are here)
+├── public/                      # Global assets (UI screenshots, diagrams)
+│   ├── UI/
+│   └── DatabaseSchemaDiagram.png
+└── docker-compose.yml           # Docker Compose for multi-container setup
 ```
 
 Create a `.env` file in the Backend folder:

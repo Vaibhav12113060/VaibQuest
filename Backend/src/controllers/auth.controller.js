@@ -62,6 +62,7 @@ LOGIN USER
 
 const loginUser = async (req, res) => {
   try {
+    // console.log("GOing to login .......");
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
@@ -102,47 +103,61 @@ const loginUser = async (req, res) => {
 GET CURRENT USER
 */
 
-const getCurrentUser = async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id).select("-password");
+// const getCurrentUser = async (req, res) => {
+//   try {
+//     const user = await User.findById(req.user.id).select("-password");
 
-    return res.status(200).json({
-      success: true,
-      user,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
+//     return res.status(200).json({
+//       success: true,
+//       user,
+//     });
+//   } catch (error) {
+//     return res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
+
+const getCurrentUser = async (req, res) => {
+  return res.status(200).json({
+    success: true,
+    user: req.user,
+  });
 };
 
 /*
 GET MY PROFILE
 */
 
+// const getMyProfile = async (req, res) => {
+//   try {
+//     const user = await User.findById(req.user.id).select("-password");
+
+//     if (!user) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "User not found",
+//       });
+//     }
+
+//     return res.status(200).json({
+//       success: true,
+//       user,
+//     });
+//   } catch (error) {
+//     return res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
+
 const getMyProfile = async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id).select("-password");
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      user,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
+  return res.status(200).json({
+    success: true,
+    user: req.user,
+  });
 };
 
 /*

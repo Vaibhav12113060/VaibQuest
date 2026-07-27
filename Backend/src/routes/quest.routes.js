@@ -8,7 +8,9 @@ const {
   getQuestById,
 } = require("../controllers/quest.controller");
 
+const cacheMiddleware = require("../middlewares/cache.middleware").default;
 const { protect, adminOnly } = require("../middlewares/authMiddleware");
+const { invalidateCache } = require("../middlewares/invalidation.middleware");
 const validate = require("../middlewares/validator.middleware");
 const {
   createQuestValidator,
@@ -28,13 +30,33 @@ USER ROUTES
 GET ALL QUESTS
 */
 
-router.get("/", protect, getAllQuests);
+router.get(
+  "/",
+  protect,
+  (req, res, next) => {
+    res.locals.cacheSet = "quests";
+    next();
+  },
+  cacheMiddleware,
+  getAllQuests,
+);
 
 /*
 GET SINGLE QUEST
 */
 
-router.get("/:id", protect, mongoIdParamValidator, validate, getQuestById);
+router.get(
+  "/:id",
+  protect,
+  mongoIdParamValidator,
+  validate,
+  (req, res, next) => {
+    res.locals.cacheSet = "quests";
+    next();
+  },
+  cacheMiddleware,
+  getQuestById,
+);
 
 /*
 =====================================
@@ -52,6 +74,7 @@ router.post(
   adminOnly,
   createQuestValidator,
   validate,
+  invalidateCache({ set: "quests" }),
   createQuest,
 );
 
@@ -65,6 +88,7 @@ router.put(
   adminOnly,
   updateQuestValidator,
   validate,
+  invalidateCache({ set: "quests" }),
   updateQuest,
 );
 
@@ -78,6 +102,7 @@ router.delete(
   adminOnly,
   mongoIdParamValidator,
   validate,
+  invalidateCache({ set: "quests" }),
   deleteQuest,
 );
 
